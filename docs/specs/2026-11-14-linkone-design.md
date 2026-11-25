@@ -38,7 +38,7 @@ cobrança por plano, limites por pessoa, IA com dados da família sem vazar, LGP
 |---|---|---|
 | `diretrizes.js` 1.13.0 (`DGO.ia`, master no rootify-one) | 7 provedores, adaptador único para o formato OpenAI, adaptadores do Gemini e da Anthropic, troca de modelo aposentado, insistência 6/15/30 s e troca para outro provedor, gancho `cfg.ia.proxy` | funciona; padrão do Claude aponta para modelo antigo (corrige sozinho no 404) |
 | `cofre.js` 1.5.0 | chaves `ia:<provedor>` cifradas com PIN/digital | funciona; o LinkONE usa os mesmos nomes |
-| `solverone-app/supabase/functions/solverone-ia` | chave da plataforma em Secrets; `reservar_uso_servico` / `estornar_uso_servico`; limite por plano e por mês; freio de 40/min | pronto para histórias e voz premium do Contador, **desligado** |
+| `solverone-app/supabase/functions/solverone-ia` | chave da plataforma em Secrets; `reservar_uso_servico` / `estornar_uso_servico`; limite por plano e por mês; freio de 40/min | pronto para histórias e voz premium do Contador; **25/Nov/2026: versão 1.1.0 no ar, histórias ligadas no OpenRouter grátis** (`openrouter/free`) |
 
 ## 3. Escopo
 
@@ -181,8 +181,10 @@ Para cada pedido, nesta ordem:
 2. **Privacidade:** a regra do pedido, senão a do app, senão `sem-vermelho`. `so-verde` aceita só 🟢;
    `sem-vermelho` aceita 🟢 e 🟡; `qualquer` aceita todos menos ⛔. A regra do app vem do comportamento
    `linkone.privacidade` publicado pelo RootifyONE (vence) ou do config do app (padrão): **`so-verde`** nos apps com
-   dado pessoal ou de saúde (OmniLifeONE, MoneyTRIO, RiseONE, HyperNutry, Contador, Leitor OCR, apps jurídicos e
+   dado pessoal ou de saúde (OmniLifeONE, MoneyTRIO, RiseONE, HyperNutry, Leitor OCR, apps jurídicos e
    corporativos), **`qualquer`** nos públicos (CifrasONE, RadarONE, Bolinho de Chuva).
+   **Contador de Histórias (dono, 25/Nov/2026): `qualquer`.** A IA só cria histórias criativas a partir de um pedido;
+   nomes reais nunca vão: ela escreve com variáveis (`[NOME1]`) e o app preenche com os nomes do perfil.
 3. **Quem paga** (seção 8): separa os candidatos da pessoa dos da plataforma.
 4. **Disponível agora:** tem chave (ou porteiro), está com internet, a rede deixa (`DGO.rede.podeUsarIA`), não está
    "esfriando" e a cota local do minuto e do dia não acabou.
@@ -221,7 +223,9 @@ Em empresa cliente, "plataforma" vira "empresa": as chaves dela no porteiro, os 
 
 ## 9. O porteiro (fase 3, desenhado agora para a fase 1 não fechar portas)
 
-- Edge Function `linkone` no `solverone-app` (a `solverone-ia` continua para voz e histórias até migrar).
+- ~~Edge Function `linkone` no `solverone-app`~~ **Decisão de 25/Nov/2026: o porteiro é a própria `solverone-ia`**
+  (um porteiro só; o endereço fica, porque os apps já o chamam). O código-mestre passa a morar neste repositório
+  quando a fase 3 começar; a função `ia` do GuiaXpert migra para ele (precisa da busca na web do Gemini).
 - Pedido: `{ app, tarefa, capacidade, privacidade, mensagens, sistema, limite }` com o token da conta SolverONE;
   resposta no mesmo formato do motor.
 - Confere no banco, com o token da pessoa: plano, créditos do mês e do dia, teto do mês da plataforma (reaproveita
